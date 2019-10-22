@@ -1,0 +1,69 @@
+version: "3"
+services:
+  prestashop:
+    depends_on:
+      - mariadb
+    ports:
+      - "80:80"
+    image: prestashop/prestashop:1.7
+    links:
+      - mariadb:mariadb
+    networks:
+      - backend
+      - frontend
+    restart: on-failure
+    volumes:
+      - ${PWD}/prestashop/html:/var/www/html/:delegated
+      - ${PWD}/prestashop/vendor:/var/www/html/vendor
+      - ${PWD}/prestashop/var:/var/www/html/var
+    environment:
+      - DB_SERVER=mariadb
+      - DB_USER=${DBUSER}
+      - DB_PASSWD=${DBPASSWORD}
+      - DB_NAME=${DBNAME}
+      - PS_INSTALL_AUTO=1
+      - PS_LANGUAGE=pl
+      - PS_DEV_MODE=1
+      - PS_COUNTRY=PL
+      - DB_PREFIX=ps
+      - PS_FOLDER_ADMIN=admin182
+      - PS_HANDLE_DYNAMIC_DOMAIN=1
+      - PS_DOMAIN=localhost
+      - ADMIN_MAIL=${ADMINNAME}
+      - ADMIN_PASSWD=${ADMINPASSWD}
+      - PS_ERASE_DB=0
+
+  mariadb:
+    image: mariadb:10.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${SQLROOTPASSWORD}
+      MYSQL_DATABASE: ${DBNAME}
+      MYSQL_USER: ${DBUSER}
+      MYSQL_PASSWORD: ${DBPASSWORD}
+    networks:
+      - backend
+    restart: on-failure
+    volumes:
+      - ${PWD}/mariadb:/var/lib/mysql
+      - ${PWD}/configs/config.cfg:/etc/mysql/conf.d/custom.cnf
+
+  phpmyadmin:
+    links:
+      - mariadb:mariadb
+    image: phpmyadmin/phpmyadmin
+    restart: on-failure
+    ports:
+      - "8888:80"
+    environment:
+      PMA_HOST: mariadb
+      MYSQL_ROOT_PASSWORD: ${SQLROOTPASSWORD}
+    networks:
+      - backend
+      - frontend
+
+networks:
+  backend:
+    driver: bridge
+    internal: true
+  frontend:
+    driver: bridge
