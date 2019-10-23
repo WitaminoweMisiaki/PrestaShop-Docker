@@ -4,13 +4,12 @@ services:
     depends_on:
       - mariadb
     ports:
-      - "80:80"
+      - "2137:80"
     image: prestashop/prestashop:1.7
     links:
       - mariadb:mariadb
     networks:
       - backend
-      - frontend
     restart: on-failure
     volumes:
       - ${PWD}/prestashop/html:/var/www/html/:delegated
@@ -53,13 +52,38 @@ services:
     image: phpmyadmin/phpmyadmin
     restart: on-failure
     ports:
-      - "8888:80"
+      - "0.0.0.0:8888:80"
     environment:
       PMA_HOST: mariadb
       MYSQL_ROOT_PASSWORD: ${SQLROOTPASSWORD}
     networks:
       - backend
       - frontend
+
+  nginx:
+    image: nginx:1.15-alpine
+    ports:
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"
+    volumes:
+      - ./data/nginx:/etc/nginx/conf.d
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    networks:
+      - frontend
+    links:
+      - prestashop
+      - phpmyadmin
+    depends_on:
+      - certbot
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+  
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 networks:
   backend:
