@@ -1,10 +1,10 @@
-version: "3"
+version: "3.7"
 services:
   prestashop:
     depends_on:
       - mariadb
     ports:
-      - "80:80"
+      - "8080:80"
     image: prestashop/prestashop:1.7
     links:
       - mariadb:mariadb
@@ -13,9 +13,9 @@ services:
       - frontend
     restart: on-failure
     volumes:
-      - ${PWD}/prestashop/html:/var/www/html/:delegated
-      - ${PWD}/prestashop/vendor:/var/www/html/vendor
-      - ${PWD}/prestashop/var:/var/www/html/var
+      - ./prestashop/html:/var/www/html/:delegated
+      - ./prestashop/vendor:/var/www/html/vendor
+      - ./prestashop/var:/var/www/html/var
     environment:
       - DB_SERVER=mariadb
       - DB_USER=${DBUSER}
@@ -34,18 +34,18 @@ services:
       - PS_ERASE_DB=0
 
   mariadb:
-    image: mariadb:10.4
+    image: mariadb:10.1
     environment:
-      MYSQL_ROOT_PASSWORD: ${SQLROOTPASSWORD}
-      MYSQL_DATABASE: ${DBNAME}
-      MYSQL_USER: ${DBUSER}
-      MYSQL_PASSWORD: ${DBPASSWORD}
+      - MYSQL_ROOT_PASSWORD=${SQLROOTPASSWORD}
+      - MYSQL_DATABASE=${DBNAME}
+      - MYSQL_USER=${DBUSER}
+      - MYSQL_PASSWORD=${DBPASSWORD}
     networks:
       - backend
     restart: on-failure
     volumes:
-      - ${PWD}/mariadb:/var/lib/mysql
-      - ${PWD}/configs/config.cfg:/etc/mysql/conf.d/custom.cnf
+      - ./mariadb:/var/lib/mysql
+      - ./configs/config.cfg:/etc/mysql/conf.d/custom.cnf
 
   phpmyadmin:
     links:
@@ -55,8 +55,8 @@ services:
     ports:
       - "8888:80"
     environment:
-      PMA_HOST: mariadb
-      MYSQL_ROOT_PASSWORD: ${SQLROOTPASSWORD}
+      - PMA_HOST=mariadb
+      - MYSQL_ROOT_PASSWORD=${SQLROOTPASSWORD}
     networks:
       - backend
       - frontend
