@@ -4,7 +4,7 @@ services:
     depends_on:
       - mariadb
     ports:
-      - "8080:80"
+      - "80:80"
     image: prestashop/prestashop:1.7
     links:
       - mariadb:mariadb
