@@ -9,7 +9,7 @@ function commit_and_push() {
 	backupString="Backup $(date +%Y-%m-%d-%H:%M)"
 	find . -name '.DS_Store' -type f -delete && git add -A
 	git commit -m "${backupString}"
-	git push --force
+	git push origin HEAD:$localManifestBranch --force
 }
 
 
@@ -24,6 +24,8 @@ function make_backup() {
 
 
 	cd ../backup
+	git fetch
+	git reset --hard origin/$localManifestBranch
 
 	rm -f mariadb.tar.gz
 	rm -f prestashop.tar.gz
