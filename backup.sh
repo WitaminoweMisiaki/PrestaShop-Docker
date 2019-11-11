@@ -10,35 +10,26 @@ function commit_and_push() {
 	find . -name '.DS_Store' -type f -delete && git add -A
 	git commit -m "${backupString}"
 	git push origin HEAD:$localManifestBranch --force
+	cd ..
 }
 
 
 function make_backup() {
+    local dir="$1"
 	local dbbackupname="db_$(date +%Y-%m-%d-%H:%M).tar.gz"
 	local psbackupname="ps_$(date +%Y-%m-%d-%H:%M).tar.gz"
-	mkdir -p backup
+	mkdir -p "$dir"
 	cd mariadb
-	tar -czf "../backup/${dbbackupname}" .
+	tar -czf "${dir}/${dbbackupname}" .
 	cd ../prestashop
-	tar -czf "../backup/${psbackupname}" .
-
-
-	cd ../backup
-	git fetch
-	git reset --hard origin/$localManifestBranch
-
-	rm -f mariadb.tar.gz
-	rm -f prestashop.tar.gz
-
-	ln -s "${dbbackupname}" mariadb.tar.gz
-	ln -s "${psbackupname}" prestashop.tar.gz
+	tar -czf "${dir}/${psbackupname}" .
 
 	cd ..
 }
 
-docker-compose down || true
+backup_dir=$2
+docker-compose -f $1 down || true
 
-make_backup
-commit_and_push backup
+make_backup $backup_dir
 
-docker-compose up -d --force-recreate --remove-orphans || true
+docker-compose -f $1 up -d --force-recreate --remove-orphans || true
