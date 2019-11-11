@@ -29,12 +29,11 @@ function decompress_backup() {
 }
 
 
-clone_or_checkout $PWD PrestaShop-Docker
+# clone_or_checkout $PWD PrestaShop-Docker
 
 
 decompress_backup
 
-docker-compose stop || true
-docker-compose rm -f || true
-
-docker-compose up
+docker-compose down || true
+docker-compose up -d --force-recreate --remove-orphans
+docker-compose logs --follow

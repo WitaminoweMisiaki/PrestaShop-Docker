@@ -34,9 +34,9 @@ function make_backup() {
 	cd ..
 }
 
-docker-compose stop || true
+docker-compose down || true
 
 make_backup
-commit_and_push backup
+# commit_and_push backup
 
-docker-compose start || true
+docker-compose up -d --force-recreate --remove-orphans || true
