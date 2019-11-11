@@ -26,7 +26,7 @@ services:
       - DB_PREFIX=ps
       - PS_FOLDER_ADMIN=admin182
       - PS_HANDLE_DYNAMIC_DOMAIN=1
-      - PS_DOMAIN=localhost
+      - PS_DOMAIN=witaminowemisiaki.ml
       - ADMIN_MAIL=${ADMINNAME}
       - ADMIN_PASSWD=${ADMINPASSWD}
       - PS_ERASE_DB=0
@@ -62,21 +62,23 @@ services:
     ports:
       - "0.0.0.0:80:80"
       - "0.0.0.0:443:443"
+    restart: unless-stopped
     volumes:
       - ./data/nginx:/etc/nginx/conf.d
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
     networks:
       - frontend
-    links:
-      - prestashop
-      - phpmyadmin
+#    links:
+#      - prestashop
+#      - phpmyadmin
     depends_on:
       - certbot
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
   
   certbot:
     image: certbot/certbot
+    restart: unless-stopped
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
