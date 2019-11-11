@@ -29,7 +29,7 @@ function decompress_backup() {
 }
 
 
-# clone_or_checkout $PWD PrestaShop-Docker
+clone_or_checkout $PWD PrestaShop-Docker
 
 
 decompress_backup

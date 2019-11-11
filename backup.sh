@@ -37,6 +37,6 @@ function make_backup() {
 docker-compose down || true
 
 make_backup
-# commit_and_push backup
+commit_and_push backup
 
 docker-compose up -d --force-recreate --remove-orphans || true
