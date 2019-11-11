@@ -23,6 +23,13 @@ function make_backup() {
 	tar -czf "${dir}/${dbbackupname}" .
 	cd ../prestashop
 	tar -czf "${dir}/${psbackupname}" .
+ 
+    
+    rm -f "${dir}/mariadb.tar.gz"
+    rm -f "${dir}/prestashop.tar.gz"
+
+    ln -s "${dir}/${dbbackupname}" "${dir}/mariadb.tar.gz"
+    ln -s "${dir}/${psbackupname}" "${dir}/prestashop.tar.gz"
 
 	cd ..
 }
